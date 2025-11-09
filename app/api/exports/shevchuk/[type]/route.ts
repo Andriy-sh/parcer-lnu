@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const EXPORT_TYPES = [
   "keywords",
@@ -15,15 +15,13 @@ function isExportType(value: string): value is ExportType {
   return EXPORT_TYPES.includes(value as ExportType);
 }
 
-async function streamFile(
+async function createFileResponse(
   filePath: string,
   fileName: string,
   contentType: string,
 ) {
-  const fileHandle = await fs.open(filePath, "r");
-  const stream = fileHandle.createReadStream();
-
-  return new NextResponse(stream as unknown as ReadableStream, {
+  const buffer = await fs.readFile(filePath);
+  return new NextResponse(buffer, {
     headers: {
       "Content-Type": contentType,
       "Content-Disposition": `attachment; filename="${fileName}"`,
@@ -32,10 +30,10 @@ async function streamFile(
 }
 
 export async function GET(
-  request: Request,
-  { params }: { params: { type: string } },
+  request: NextRequest,
+  context: { params: Promise<{ type: string }> },
 ) {
-  const { type } = params;
+  const { type } = await context.params;
 
   if (!isExportType(type)) {
     return NextResponse.json(
@@ -57,7 +55,7 @@ export async function GET(
     const keywordsPath = path.join(dataDir, "key-words-shevchyk.json");
     try {
       await fs.access(keywordsPath);
-      return streamFile(
+      return createFileResponse(
         keywordsPath,
         "key-words-shevchyk.json",
         "application/json",
@@ -75,7 +73,7 @@ export async function GET(
     try {
       await fs.access(xPath);
       if (type === "x") {
-        return streamFile(
+        return createFileResponse(
           xPath,
           "x_posts.csv",
           "text/csv; charset=utf-8",
@@ -96,7 +94,7 @@ export async function GET(
     try {
       await fs.access(fbPath);
       if (type === "facebook") {
-        return streamFile(
+        return createFileResponse(
           fbPath,
           "facebook_posts.csv",
           "text/csv; charset=utf-8",
