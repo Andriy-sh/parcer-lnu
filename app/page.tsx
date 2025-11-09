@@ -3,14 +3,14 @@ import Link from "next/link";
 const ACCOUNTS = [
   {
     id: "shevchuk",
-    name: "Шевчук Богданна",
+    name: "Шевчук Богдана",
     description:
       "Зібрані публікації з X та Facebook. Є пошук, фільтри та деталізація метрик.",
     href: "/shevchuk",
   },
   {
     id: "rozkvas",
-    name: "Розквас Квенія",
+    name: "Розквас Кcенія",
     description:
       "Публікації будуть додані пізніше. Поки що можна переглянути інші акаунти.",
     href: "/rozkvas",
